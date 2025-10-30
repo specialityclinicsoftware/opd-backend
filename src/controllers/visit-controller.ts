@@ -7,6 +7,7 @@ import {
   sendCreated,
 } from '../utils/response-handler';
 import { logError, getErrorMessage } from '../utils/error-handler';
+import { VisitStatus } from '../models/visit';
 
 /**
  * Create a new visit record
@@ -136,5 +137,27 @@ export const getPatientHistory = async (req: Request, res: Response): Promise<vo
   } catch (error) {
     logError('getPatientHistory', error);
     sendError(res, 'Failed to fetch patient history', 500, getErrorMessage(error));
+  }
+};
+
+/**
+ * Get pending visits for the authenticated user's hospital
+ * GET /api/visits/pending
+ */
+export const getPendingVisits = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.user?.hospitalId) {
+      sendError(res, 'Hospital ID required', 400);
+      return;
+    }
+
+    const visits = await visitService.getHospitalVisits(req.user.hospitalId, {
+      status: VisitStatus.PENDING,
+    });
+
+    sendSuccess(res, { count: visits.length, visits }, 'Pending visits retrieved successfully');
+  } catch (error) {
+    logError('getPendingVisits', error);
+    sendError(res, 'Failed to fetch pending visits', 500, getErrorMessage(error));
   }
 };

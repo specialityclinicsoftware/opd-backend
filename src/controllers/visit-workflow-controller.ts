@@ -1,71 +1,9 @@
 import { Request, Response } from 'express';
 import * as visitService from '../services/visit-service';
-import { sendSuccess, sendError, sendCreated } from '../utils/response-handler';
+import { sendSuccess, sendError } from '../utils/response-handler';
 import { UserRole } from '../models/user';
 import { Account } from '../models/account';
 
-
-/**
-   * Get nurse queue
-   * GET /api/visits/queue/nurse
-   */
-export const getNurseQueue = async (req: Request, res: Response) => {
-    try {
-      if (!req.user?.hospitalId) {
-        return sendError(res, 'Hospital ID required', 400);
-      }
-
-      const visits = await visitService.getNurseQueue(
-        req.user.hospitalId,
-        req.user.role === UserRole.NURSE ? req.user.userId : undefined
-      );
-
-      return sendSuccess(res, visits, 'Nurse queue retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get nurse queue', 500);
-    }
-}
-
-/**
-   * Get doctor queue
-   * GET /api/visits/queue/doctor
-   */
-export const getDoctorQueue = async (req: Request, res: Response) => {
-    try {
-      if (!req.user?.hospitalId) {
-        return sendError(res, 'Hospital ID required', 400);
-      }
-
-      const visits = await visitService.getDoctorQueue(
-        req.user.hospitalId,
-        req.user.role === UserRole.DOCTOR ? req.user.userId : undefined
-      );
-
-      return sendSuccess(res, visits, 'Doctor queue retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get doctor queue', 500);
-    }
-}
-
-/**
-   * Start pre-consultation (nurse picks up visit)
-   * POST /api/visits/:id/start-pre-consultation
-   */
-export const startPreConsultation = async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        return sendError(res, 'Unauthorized', 401);
-      }
-
-      const { id } = req.params;
-
-      const visit = await visitService.startPreConsultation(id, req.user.userId);
-
-      return sendSuccess(res, visit, 'Pre-consultation started successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to start pre-consultation', 400);
-    }
-}
 
 /**
    * Update pre-consultation data
@@ -88,45 +26,6 @@ export const updatePreConsultation = async (req: Request, res: Response) => {
     }
 }
 
-/**
-   * Complete pre-consultation
-   * POST /api/visits/:id/complete-pre-consultation
-   */
-export const completePreConsultation = async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        return sendError(res, 'Unauthorized', 401);
-      }
-
-      const { id } = req.params;
-
-      const visit = await visitService.completePreConsultation(id, req.user.userId);
-
-      return sendSuccess(res, visit, 'Pre-consultation completed successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to complete pre-consultation', 400);
-    }
-}
-
-/**
-   * Start consultation (doctor picks up visit)
-   * POST /api/visits/:id/start-consultation
-   */
-export const startConsultation = async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        return sendError(res, 'Unauthorized', 401);
-      }
-
-      const { id } = req.params;
-
-      const visit = await visitService.startConsultation(id, req.user.userId);
-
-      return sendSuccess(res, visit, 'Consultation started successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to start consultation', 400);
-    }
-}
 
 /**
    * Update consultation data
@@ -155,26 +54,6 @@ export const updateConsultation = async (req: Request, res: Response) => {
       return sendSuccess(res, visit, 'Consultation updated successfully');
     } catch (error: any) {
       return sendError(res, error.message || 'Failed to update consultation', 400);
-    }
-}
-
-/**
-   * Finalize visit (doctor completes)
-   * POST /api/visits/:id/finalize
-   */
-export const finalizeVisit = async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        return sendError(res, 'Unauthorized', 401);
-      }
-
-      const { id } = req.params;
-
-      const visit = await visitService.finalizeVisit(id, req.user.userId);
-
-      return sendSuccess(res, visit, 'Visit finalized successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to finalize visit', 400);
     }
 }
 

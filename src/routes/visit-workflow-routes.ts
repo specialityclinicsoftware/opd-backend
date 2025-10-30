@@ -6,77 +6,38 @@ import { validateUpdatePreConsultation, validateUpdateConsultation, validateCanc
 
 const router = Router();
 
-// Queue endpoints
-router.get(
-  '/visits/queue/nurse',
-  authenticate,
-  authorize(UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
-  visitWorkflowController.getNurseQueue
-);
 
-router.get(
-  '/visits/queue/doctor',
-  authenticate,
-  authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
-  visitWorkflowController.getDoctorQueue
-);
-
-// Nurse pre-consultation endpoints
-router.post(
-  '/visits/:id/start-pre-consultation',
-  authenticate,
-  authorize(UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
-  visitWorkflowController.startPreConsultation
-);
 
 router.put(
-  '/visits/:id/pre-consultation',
+  '/visits/workflow/:id/pre-consultation',
   authenticate,
   authorize(UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
   validateUpdatePreConsultation,
   visitWorkflowController.updatePreConsultation
 );
 
-router.post(
-  '/visits/:id/complete-pre-consultation',
-  authenticate,
-  authorize(UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
-  visitWorkflowController.completePreConsultation
-);
 
-// Doctor consultation endpoints
-router.post(
-  '/visits/:id/start-consultation',
-  authenticate,
-  authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
-  visitWorkflowController.startConsultation
-);
+
 
 router.put(
-  '/visits/:id/consultation',
+  '/visits/workflow/:id/consultation',
   authenticate,
   authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
   validateUpdateConsultation,
   visitWorkflowController.updateConsultation
 );
 
-router.post(
-  '/visits/:id/finalize',
-  authenticate,
-  authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
-  visitWorkflowController.finalizeVisit
-);
 
 // General visit endpoints
 router.get(
-  '/visits/:id',
+  '/visits/workflow/:id',
   authenticate,
   authorize(UserRole.DOCTOR, UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
   visitWorkflowController.getVisitById
 );
 
 router.post(
-  '/visits/:id/cancel',
+  '/visits/workflow/:id/cancel',
   authenticate,
   authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
   validateCancelVisit,
@@ -84,7 +45,7 @@ router.post(
 );
 
 router.get(
-  '/hospitals/:hospitalId/visits',
+  '/hospitals/:hospitalId/visits/workflow',
   authenticate,
   authorize(UserRole.DOCTOR, UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
   checkHospitalAccess,

@@ -67,95 +67,6 @@ export const updateVisit = async (
 }
 
 /**
-   * Get nurse queue - visits that are pending or with-nurse
-   */
-export const getNurseQueue = async (hospitalId: string, nurseId?: string):Promise<IVisitDocument[]> =>  {
-    try {
-      const query: any = {
-        hospitalId,
-        status: { $in: [VisitStatus.PENDING, VisitStatus.WITH_NURSE] }
-      };
-
-      // If nurseId is provided, also include visits assigned to this nurse
-      if (nurseId) {
-        query.$or = [
-          { status: { $in: [VisitStatus.PENDING, VisitStatus.WITH_NURSE] } },
-          { nurseId, status: VisitStatus.WITH_NURSE }
-        ];
-      }
-
-      const visits = await Visit.find(query)
-        .sort({ visitDate: 1 })
-        .populate('patientId', 'name phoneNumber age gender')
-        .populate('nurseId', 'name');
-
-      return visits;
-    } catch (error: any) {
-      logger.error('Error in getNurseQueue service:', error);
-      throw error;
-    }
-}
-
-/**
-   * Get doctor queue - visits that are ready-for-doctor or with-doctor
-   */
-export const getDoctorQueue = async (hospitalId: string, doctorId?: string):Promise<IVisitDocument[]> =>  {
-    try {
-      const query: any = {
-        hospitalId,
-        status: { $in: [VisitStatus.READY_FOR_DOCTOR, VisitStatus.WITH_DOCTOR] }
-      };
-
-      // If doctorId is provided, also include visits assigned to this doctor
-      if (doctorId) {
-        query.$or = [
-          { status: { $in: [VisitStatus.READY_FOR_DOCTOR, VisitStatus.WITH_DOCTOR] } },
-          { doctorId, status: VisitStatus.WITH_DOCTOR }
-        ];
-      }
-
-      const visits = await Visit.find(query)
-        .sort({ preConsultationCompletedAt: 1 })
-        .populate('patientId', 'name phoneNumber age gender')
-        .populate('nurseId', 'name')
-        .populate('doctorId', 'name');
-
-      return visits;
-    } catch (error: any) {
-      logger.error('Error in getDoctorQueue service:', error);
-      throw error;
-    }
-}
-
-/**
-   * Start pre-consultation (nurse picks up the visit)
-   */
-export const startPreConsultation = async (visitId: string, nurseId: string):Promise<IVisitDocument> =>  {
-    try {
-      const visit = await Visit.findById(visitId);
-
-      if (!visit) {
-        throw new Error('Visit not found');
-      }
-
-      if (visit.status !== VisitStatus.PENDING && visit.status !== VisitStatus.WITH_NURSE) {
-        throw new Error(`Cannot start pre-consultation. Visit is in ${visit.status} status`);
-      }
-
-      visit.status = VisitStatus.WITH_NURSE;
-      visit.nurseId = nurseId as any;
-      await visit.save();
-
-      logger.info(`Pre-consultation started for visit: ${visitId} by nurse: ${nurseId}`);
-
-      return visit;
-    } catch (error: any) {
-      logger.error('Error in startPreConsultation service:', error);
-      throw error;
-    }
-}
-
-/**
    * Update pre-consultation data (nurse updates vitals, history, etc.)
    */
 export const updatePreConsultation = async (
@@ -197,13 +108,9 @@ export const updatePreConsultation = async (
       // Update visit
       Object.assign(visit, filteredUpdate);
 
-      // Set nurse ID and status if not already set
-      if (!visit.nurseId) {
-        visit.nurseId = nurseId as any;
-      }
-      if (visit.status === VisitStatus.PENDING) {
-        visit.status = VisitStatus.WITH_NURSE;
-      }
+      visit.nurseId = nurseId as any;
+      visit.status = VisitStatus.READY_FOR_DOCTOR;
+      visit.preConsultationCompletedAt = new Date();
 
       await visit.save();
 
@@ -216,61 +123,6 @@ export const updatePreConsultation = async (
     }
 }
 
-/**
-   * Complete pre-consultation (nurse marks as ready for doctor)
-   */
-export const completePreConsultation = async (visitId: string, nurseId: string):Promise<IVisitDocument> =>  {
-    try {
-      const visit = await Visit.findById(visitId);
-
-      if (!visit) {
-        throw new Error('Visit not found');
-      }
-
-      if (visit.status !== VisitStatus.WITH_NURSE) {
-        throw new Error(`Cannot complete pre-consultation. Visit is in ${visit.status} status`);
-      }
-
-      visit.status = VisitStatus.READY_FOR_DOCTOR;
-      visit.preConsultationCompletedAt = new Date();
-      await visit.save();
-
-      logger.info(`Pre-consultation completed for visit: ${visitId}`);
-
-      return visit;
-    } catch (error: any) {
-      logger.error('Error in completePreConsultation service:', error);
-      throw error;
-    }
-}
-
-/**
-   * Start consultation (doctor picks up the visit)
-   */
-export const startConsultation = async (visitId: string, doctorId: string):Promise<IVisitDocument> =>  {
-    try {
-      const visit = await Visit.findById(visitId);
-
-      if (!visit) {
-        throw new Error('Visit not found');
-      }
-
-      if (visit.status !== VisitStatus.READY_FOR_DOCTOR && visit.status !== VisitStatus.WITH_DOCTOR) {
-        throw new Error(`Cannot start consultation. Visit is in ${visit.status} status`);
-      }
-
-      visit.status = VisitStatus.WITH_DOCTOR;
-      visit.doctorId = doctorId as any;
-      await visit.save();
-
-      logger.info(`Consultation started for visit: ${visitId} by doctor: ${doctorId}`);
-
-      return visit;
-    } catch (error: any) {
-      logger.error('Error in startConsultation service:', error);
-      throw error;
-    }
-}
 
 /**
    * Update consultation data (doctor updates systemic examination, diagnosis, etc.)
@@ -328,13 +180,9 @@ export const updateConsultation = async (
       Object.assign(visit, filteredUpdate);
 
       // Set doctor ID and status if not already set
-      if (!visit.doctorId) {
         visit.doctorId = doctorId as any;
-      }
-      if (visit.status === VisitStatus.READY_FOR_DOCTOR) {
-        visit.status = VisitStatus.WITH_DOCTOR;
-      }
-
+        visit.status = VisitStatus.COMPLETED;
+visit.consultationCompletedAt = new Date();
       await visit.save();
 
       logger.info(`Consultation updated for visit: ${visitId}`);
@@ -342,34 +190,6 @@ export const updateConsultation = async (
       return visit;
     } catch (error: any) {
       logger.error('Error in updateConsultation service:', error);
-      throw error;
-    }
-}
-
-/**
-   * Finalize visit (doctor completes the visit)
-   */
-export const finalizeVisit = async (visitId: string, doctorId: string):Promise<IVisitDocument> =>  {
-    try {
-      const visit = await Visit.findById(visitId);
-
-      if (!visit) {
-        throw new Error('Visit not found');
-      }
-
-      if (visit.status !== VisitStatus.WITH_DOCTOR) {
-        throw new Error(`Cannot finalize visit. Visit is in ${visit.status} status`);
-      }
-
-      visit.status = VisitStatus.COMPLETED;
-      visit.consultationCompletedAt = new Date();
-      await visit.save();
-
-      logger.info(`Visit finalized: ${visitId}`);
-
-      return visit;
-    } catch (error: any) {
-      logger.error('Error in finalizeVisit service:', error);
       throw error;
     }
 }
