@@ -1,14 +1,21 @@
-import { Router } from 'express';
-import * as userController from '../controllers/user-controller';
-import { authenticate, authorize, checkHospitalAccess } from '../middleware/auth';
-import { UserRole } from '../models/user';
-import { validateCreateUser, validateUpdateUser } from '../validators/user-validator';
+import { Router } from "express";
+import * as userController from "../controllers/user-controller";
+import {
+  authenticate,
+  authorize,
+  checkHospitalAccess,
+} from "../middleware/auth";
+import { UserRole } from "../models/user";
+import {
+  validateCreateUser,
+  validateUpdateUser,
+} from "../validators/user-validator";
 
 const router = Router();
 
 // Hospital Admin and Super Admin can create/manage users
 router.post(
-  '/hospitals/:hospitalId/users',
+  "/hospitals/:hospitalId/users",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN),
   checkHospitalAccess,
@@ -17,7 +24,7 @@ router.post(
 );
 
 router.get(
-  '/hospitals/:hospitalId/users',
+  "/hospitals/:hospitalId/users",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR),
   checkHospitalAccess,
@@ -25,15 +32,20 @@ router.get(
 );
 
 router.get(
-  '/hospitals/:hospitalId/doctors',
+  "/hospitals/:hospitalId/doctors",
   authenticate,
-  authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.NURSE),
+  authorize(
+    UserRole.SUPER_ADMIN,
+    UserRole.HOSPITAL_ADMIN,
+    UserRole.DOCTOR,
+    UserRole.NURSE
+  ),
   checkHospitalAccess,
   userController.getDoctorsByHospital
 );
 
 router.get(
-  '/hospitals/:hospitalId/nurses',
+  "/hospitals/:hospitalId/nurses",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR),
   checkHospitalAccess,
@@ -41,14 +53,14 @@ router.get(
 );
 
 router.get(
-  '/users/:id',
+  "/users/:id",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR),
   userController.getUserById
 );
 
 router.put(
-  '/users/:id',
+  "/users/:id",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN),
   validateUpdateUser,
@@ -56,21 +68,21 @@ router.put(
 );
 
 router.post(
-  '/users/:id/deactivate',
+  "/users/:id/deactivate",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN),
   userController.deactivateUser
 );
 
 router.post(
-  '/users/:id/activate',
+  "/users/:id/activate",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN),
   userController.activateUser
 );
 
 router.delete(
-  '/users/:id',
+  "/users/:id",
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN),
   userController.deleteUser
