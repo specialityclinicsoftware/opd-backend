@@ -9,6 +9,7 @@ import {
 } from '../controllers/patient-controller';
 import { authenticate, authorize } from '../middleware/auth';
 import { UserRole } from '../models/user';
+import { validateRegisterPatient, validateUpdatePatient, validateSearchByPhone } from '../validators/patient-validator';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.use(authenticate);
 router.post(
   '/register',
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST),
+  validateRegisterPatient,
   registerPatient
 );
 
@@ -31,6 +33,7 @@ router.get(
 router.get(
   '/search',
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.RECEPTIONIST),
+  validateSearchByPhone,
   searchPatientByPhone
 );
 
@@ -43,6 +46,7 @@ router.get(
 router.put(
   '/:id',
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.NURSE),
+  validateUpdatePatient,
   updatePatient
 );
 

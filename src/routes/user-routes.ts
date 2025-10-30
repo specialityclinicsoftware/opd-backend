@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as userController from '../controllers/user-controller';
 import { authenticate, authorize, checkHospitalAccess } from '../middleware/auth';
 import { UserRole } from '../models/user';
+import { validateCreateUser, validateUpdateUser } from '../validators/user-validator';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.post(
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN),
   checkHospitalAccess,
+  validateCreateUser,
   userController.createUser
 );
 
@@ -49,6 +51,7 @@ router.put(
   '/users/:id',
   authenticate,
   authorize(UserRole.SUPER_ADMIN, UserRole.HOSPITAL_ADMIN),
+  validateUpdateUser,
   userController.updateUser
 );
 

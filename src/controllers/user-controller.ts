@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as userService from '../services/user-service';
-import { sendSuccess, sendError, sendValidationError, sendCreated } from '../utils/response-handler';
+import { sendSuccess, sendError, sendCreated } from '../utils/response-handler';
 import { UserRole } from '../models/user';
 
 
@@ -19,14 +19,6 @@ export const createUser = async (req: Request, res: Response) => {
 
       // Set hospital ID from params
       userData.hospitalId = hospitalId;
-
-      // Validation
-      const requiredFields = ['name', 'email', 'password', 'role'];
-      const missingFields = requiredFields.filter((field) => !userData[field]);
-
-      if (missingFields.length > 0) {
-        return sendValidationError(res, `Missing fields: ${missingFields.join(', ')}`);
-      }
 
       const user = await userService.createUser(
         userData,

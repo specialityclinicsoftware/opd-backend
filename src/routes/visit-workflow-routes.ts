@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as visitWorkflowController from '../controllers/visit-workflow-controller';
 import { authenticate, authorize, checkHospitalAccess } from '../middleware/auth';
 import { UserRole } from '../models/user';
+import { validateUpdatePreConsultation, validateUpdateConsultation, validateCancelVisit } from '../validators/visit-workflow-validator';
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.put(
   '/visits/:id/pre-consultation',
   authenticate,
   authorize(UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
+  validateUpdatePreConsultation,
   visitWorkflowController.updatePreConsultation
 );
 
@@ -54,6 +56,7 @@ router.put(
   '/visits/:id/consultation',
   authenticate,
   authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
+  validateUpdateConsultation,
   visitWorkflowController.updateConsultation
 );
 
@@ -76,6 +79,7 @@ router.post(
   '/visits/:id/cancel',
   authenticate,
   authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
+  validateCancelVisit,
   visitWorkflowController.cancelVisit
 );
 

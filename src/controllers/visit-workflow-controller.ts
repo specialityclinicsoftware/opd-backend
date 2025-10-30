@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as visitService from '../services/visit-service';
-import { sendSuccess, sendError, sendValidationError, sendCreated } from '../utils/response-handler';
+import { sendSuccess, sendError, sendCreated } from '../utils/response-handler';
 import { UserRole } from '../models/user';
 import { Account } from '../models/account';
 

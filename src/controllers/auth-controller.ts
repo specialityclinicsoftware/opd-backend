@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as authService from '../services/auth-service';
-import { sendSuccess, sendError, sendValidationError } from '../utils/response-handler';
+import { sendSuccess, sendError } from '../utils/response-handler';
 
 /**
  * Login user
@@ -9,11 +9,6 @@ import { sendSuccess, sendError, sendValidationError } from '../utils/response-h
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
-    // Validation
-    if (!email || !password) {
-      return sendValidationError(res, 'Email and password are required');
-    }
 
     const result = await authService.login(email, password);
 
@@ -30,10 +25,6 @@ export const login = async (req: Request, res: Response) => {
 export const refreshTokenHandler = async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      return sendValidationError(res, 'Refresh token is required');
-    }
 
     const tokens = await authService.refreshToken(refreshToken);
 
@@ -90,14 +81,6 @@ export const changePassword = async (req: Request, res: Response) => {
     }
 
     const { oldPassword, newPassword } = req.body;
-
-    if (!oldPassword || !newPassword) {
-      return sendValidationError(res, 'Old password and new password are required');
-    }
-
-    if (newPassword.length < 6) {
-      return sendValidationError(res, 'New password must be at least 6 characters');
-    }
 
     const result = await authService.changePassword(req.user.userId, oldPassword, newPassword);
 

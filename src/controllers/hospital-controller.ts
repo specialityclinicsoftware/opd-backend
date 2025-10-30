@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as hospitalService from '../services/hospital-service';
-import { sendSuccess, sendError, sendValidationError, sendCreated } from '../utils/response-handler';
+import { sendSuccess, sendError, sendCreated } from '../utils/response-handler';
 
 /**
  * Create new hospital (Super Admin only)
@@ -9,27 +9,6 @@ import { sendSuccess, sendError, sendValidationError, sendCreated } from '../uti
 export const createHospital = async (req: Request, res: Response) => {
   try {
     const { hospital, admin } = req.body;
-
-    console.log.apply({ hospital, admin });
-
-    // Validation
-    if (!hospital || !admin) {
-      return sendValidationError(res, 'Hospital and admin data are required');
-    }
-
-    const requiredHospitalFields = ['hospitalName', 'address', 'city', 'state', 'pincode', 'phoneNumber', 'email'];
-    const missingHospitalFields = requiredHospitalFields.filter((field) => !hospital[field]);
-
-    if (missingHospitalFields.length > 0) {
-      return sendValidationError(res, `Missing hospital fields: ${missingHospitalFields.join(', ')}`);
-    }
-
-    const requiredAdminFields = ['name', 'email', 'password'];
-    const missingAdminFields = requiredAdminFields.filter((field) => !admin[field]);
-
-    if (missingAdminFields.length > 0) {
-      return sendValidationError(res, `Missing admin fields: ${missingAdminFields.join(', ')}`);
-    }
 
     const result = await hospitalService.createHospital(hospital, admin);
 

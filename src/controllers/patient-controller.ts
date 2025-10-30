@@ -4,8 +4,8 @@ import {
   sendSuccess,
   sendError,
   sendNotFound,
-  sendValidationError,
   sendCreated,
+  sendValidationError,
 } from '../utils/response-handler';
 import { logError, getErrorMessage } from '../utils/error-handler';
 
@@ -74,11 +74,6 @@ export const getPatientById = async (req: Request, res: Response): Promise<void>
 export const searchPatientByPhone = async (req: Request, res: Response): Promise<void> => {
   try {
     const { phoneNumber } = req.query;
-
-    if (!phoneNumber) {
-      sendValidationError(res, 'Phone number is required');
-      return;
-    }
 
     // Search within hospital for non-super-admin users
     const hospitalId = req.user?.hospitalId;

@@ -7,16 +7,17 @@ import {
   deleteMedicationHistory,
   getRecentPrescriptions,
 } from '../controllers/medication-controller';
+import { validateAddMedicationHistory, validateUpdateMedicationHistory } from '../validators/medication-validator';
 
 const router = express.Router();
 
 // Medication history routes
-router.post('/', addMedicationHistory);
+router.post('/', validateAddMedicationHistory, addMedicationHistory);
 router.get('/patient/:patientId', getPatientMedicationHistory);
 router.get('/patient/:patientId/recent', getRecentPrescriptions);
 router.get('/visit/:visitId', getVisitMedicationHistory);
 router.get('/:id', getVisitMedicationHistory); // Get by medication history ID
-router.put('/:id', updateMedicationHistory);
+router.put('/:id', validateUpdateMedicationHistory, updateMedicationHistory);
 router.delete('/:id', deleteMedicationHistory);
 
 export default router;
