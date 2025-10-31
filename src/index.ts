@@ -10,6 +10,7 @@ import hospitalRoutes from './routes/hospital-routes';
 import userRoutes from './routes/user-routes';
 import visitWorkflowRoutes from './routes/visit-workflow-routes';
 import logger from './config/logger';
+import { keepServerAlive } from './keep-alive';
 
 // Load environment variables
 dotenv.config();
@@ -139,6 +140,8 @@ app.use((err: Error, req: Request, res: Response, _next: Function) => {
     error: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });
+
+keepServerAlive()
 
 // Start server
 const startServer = async () => {
