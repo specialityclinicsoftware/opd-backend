@@ -14,7 +14,7 @@ async function createSuperAdmin() {
     const args = process.argv.slice(2);
     const name = args[0] || 'Super Admin';
     const email = args[1] || 'sammelvin2232002@gmail.com';
-    const password = args[2] || 'Admin@123';
+    const password = args[2] || '^YpzpcnO|Gy(6mD3>Odxh#|9_0]ogL';
     const phoneNumber = args[3] || undefined;
 
     console.log('📝 Creating super admin with:');
