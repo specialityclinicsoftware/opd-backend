@@ -27,8 +27,8 @@ export const createUser = async (req: Request, res: Response) => {
       );
 
       return sendCreated(res, user, 'User created successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to create user', 400);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to create user', 400);
     }
 }
 
@@ -54,8 +54,8 @@ export const getUsersByHospital = async (req: Request, res: Response) => {
       const users = await userService.getUsersByHospital(hospitalId, filters);
 
       return sendSuccess(res, users, 'Users retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get users', 500);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to get users', 500);
     }
 }
 
@@ -70,8 +70,8 @@ export const getUserById = async (req: Request, res: Response) => {
       const user = await userService.getUserById(id);
 
       return sendSuccess(res, user, 'User retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get user', 404);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to get user', 404);
     }
 }
 
@@ -102,8 +102,8 @@ export const updateUser = async (req: Request, res: Response) => {
       );
 
       return sendSuccess(res, user, 'User updated successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to update user', 400);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to update user', 400);
     }
 }
 
@@ -126,8 +126,8 @@ export const deactivateUser = async (req: Request, res: Response) => {
       );
 
       return sendSuccess(res, user, 'User deactivated successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to deactivate user', 400);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to deactivate user', 400);
     }
 }
 
@@ -150,8 +150,8 @@ export const activateUser = async (req: Request, res: Response) => {
       );
 
       return sendSuccess(res, user, 'User activated successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to activate user', 400);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to activate user', 400);
     }
 }
 
@@ -174,8 +174,8 @@ export const deleteUser = async (req: Request, res: Response) => {
       );
 
       return sendSuccess(res, user, 'User deleted successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to delete user', 400);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to delete user', 400);
     }
 }
 
@@ -190,8 +190,8 @@ export const getDoctorsByHospital = async (req: Request, res: Response) => {
       const doctors = await userService.getDoctorsByHospital(hospitalId);
 
       return sendSuccess(res, doctors, 'Doctors retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get doctors', 500);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to get doctors', 500);
     }
 }
 
@@ -206,7 +206,7 @@ export const getNursesByHospital = async (req: Request, res: Response) => {
       const nurses = await userService.getNursesByHospital(hospitalId);
 
       return sendSuccess(res, nurses, 'Nurses retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get nurses', 500);
+    } catch (error: unknown) {
+      return sendError(res, (error as Error).message || 'Failed to get nurses', 500);
     }
 }

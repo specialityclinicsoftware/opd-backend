@@ -35,8 +35,8 @@ export const login = async (email: string, password: string) => {
       user: user.toJSON(),
       ...tokens,
     };
-  } catch (error: any) {
-    logger.error(`Login error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Login error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -62,8 +62,8 @@ export const refreshToken = async (refreshToken: string) => {
     logger.info(`Token refreshed for user: ${user.email}`);
 
     return tokens;
-  } catch (error: any) {
-    logger.error(`Token refresh error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Token refresh error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -80,8 +80,8 @@ export const getCurrentUser = async (userId: string) => {
     }
 
     return user;
-  } catch (error: any) {
-    logger.error(`Get current user error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Get current user error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -93,8 +93,8 @@ export const logout = async (userId: string) => {
   try {
     logger.info(`User logged out: ${userId}`);
     return { message: 'Logged out successfully' };
-  } catch (error: any) {
-    logger.error(`Logout error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Logout error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -124,8 +124,8 @@ export const changePassword = async (userId: string, oldPassword: string, newPas
     logger.info(`Password changed for user: ${user.email}`);
 
     return { message: 'Password changed successfully' };
-  } catch (error: any) {
-    logger.error(`Change password error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Change password error: ${(error as Error).message}`);
     throw error;
   }
 };

@@ -22,7 +22,7 @@ export const createVisit = async (req: Request, res: Response): Promise<void> =>
     }
 
     sendCreated(res, { visit }, 'Visit recorded successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('createVisit', error);
     sendError(res, 'Failed to create visit', 500, getErrorMessage(error));
   }
@@ -35,7 +35,7 @@ export const getPatientVisits = async (req: Request, res: Response): Promise<voi
   try {
     const visits = await visitService.getPatientVisits(req.params.patientId);
     sendSuccess(res, { count: visits.length, visits });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('getPatientVisits', error);
     sendError(res, 'Failed to fetch visits', 500, getErrorMessage(error));
   }
@@ -54,7 +54,7 @@ export const getVisitById = async (req: Request, res: Response): Promise<void> =
     }
 
     sendSuccess(res, { visit });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('getVisitById', error);
     sendError(res, 'Failed to fetch visit', 500, getErrorMessage(error));
   }
@@ -73,7 +73,7 @@ export const getLatestVisit = async (req: Request, res: Response): Promise<void>
     }
 
     sendSuccess(res, { visit });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('getLatestVisit', error);
     sendError(res, 'Failed to fetch latest visit', 500, getErrorMessage(error));
   }
@@ -92,7 +92,7 @@ export const updateVisit = async (req: Request, res: Response): Promise<void> =>
     }
 
     sendSuccess(res, { visit }, 'Visit updated successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('updateVisit', error);
     sendError(res, 'Failed to update visit', 500, getErrorMessage(error));
   }
@@ -111,7 +111,7 @@ export const deleteVisit = async (req: Request, res: Response): Promise<void> =>
     }
 
     sendSuccess(res, {}, 'Visit deleted successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('deleteVisit', error);
     sendError(res, 'Failed to delete visit', 500, getErrorMessage(error));
   }
@@ -134,7 +134,7 @@ export const getPatientHistory = async (req: Request, res: Response): Promise<vo
       visitCount: result.visits.length,
       visits: result.visits,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('getPatientHistory', error);
     sendError(res, 'Failed to fetch patient history', 500, getErrorMessage(error));
   }
@@ -156,7 +156,7 @@ export const getPendingVisits = async (req: Request, res: Response): Promise<voi
     });
 
     sendSuccess(res, { count: visits.length, visits }, 'Pending visits retrieved successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('getPendingVisits', error);
     sendError(res, 'Failed to fetch pending visits', 500, getErrorMessage(error));
   }

@@ -13,8 +13,8 @@ export const login = async (req: Request, res: Response) => {
     const result = await authService.login(email, password);
 
     return sendSuccess(res, result, 'Login successful');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Login failed', 401);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Login failed', 401);
   }
 };
 
@@ -29,8 +29,8 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
     const tokens = await authService.refreshToken(refreshToken);
 
     return sendSuccess(res, tokens, 'Token refreshed successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Token refresh failed', 401);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Token refresh failed', 401);
   }
 };
 
@@ -47,8 +47,8 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     const user = await authService.getCurrentUser(req.user.userId);
 
     return sendSuccess(res, user, 'User retrieved successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to get user', 500);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to get user', 500);
   }
 };
 
@@ -65,8 +65,8 @@ export const logout = async (req: Request, res: Response) => {
     const result = await authService.logout(req.user.userId);
 
     return sendSuccess(res, result, 'Logout successful');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Logout failed', 500);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Logout failed', 500);
   }
 };
 
@@ -85,7 +85,7 @@ export const changePassword = async (req: Request, res: Response) => {
     const result = await authService.changePassword(req.user.userId, oldPassword, newPassword);
 
     return sendSuccess(res, result, 'Password changed successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Password change failed', 400);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Password change failed', 400);
   }
 };

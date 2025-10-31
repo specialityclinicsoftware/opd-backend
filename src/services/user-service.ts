@@ -45,7 +45,7 @@ export const createUser = async (userData: Partial<IUser>, creatorRole: UserRole
 
       return user.toJSON();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Create user error: ${message}`);
       throw error;
     }
@@ -76,7 +76,7 @@ export const getUsersByHospital = async (hospitalId: string, filters?: { role?: 
 
       return users;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Get users by hospital error: ${message}`);
       throw error;
     }
@@ -96,7 +96,7 @@ export const getUserById = async (userId: string) => {
 
       return user;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Get user by ID error: ${message}`);
       throw error;
     }
@@ -135,7 +135,7 @@ export const updateUser = async (userId: string, updateData: Partial<IUser>, upd
 
       return user.toJSON();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Update user error: ${message}`);
       throw error;
     }
@@ -166,7 +166,7 @@ export const deactivateUser = async (userId: string, deactivatorRole: UserRole, 
 
       return user.toJSON();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Deactivate user error: ${message}`);
       throw error;
     }
@@ -197,7 +197,7 @@ export const activateUser = async (userId: string, activatorRole: UserRole, acti
 
       return user.toJSON();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Activate user error: ${message}`);
       throw error;
     }
@@ -210,7 +210,7 @@ export const deleteUser = async (userId: string, deleterRole: UserRole, deleterH
     try {
       return await deactivateUser(userId, deleterRole, deleterHospitalId);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Delete user error: ${message}`);
       throw error;
     }
@@ -226,7 +226,7 @@ export const getDoctorsByHospital = async (hospitalId: string) => {
         isActive: true
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Get doctors by hospital error: ${message}`);
       throw error;
     }
@@ -242,7 +242,7 @@ export const getNursesByHospital = async (hospitalId: string) => {
         isActive: true
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? (error as Error).message : 'Unknown error';
       logger.error(`Get nurses by hospital error: ${message}`);
       throw error;
     }

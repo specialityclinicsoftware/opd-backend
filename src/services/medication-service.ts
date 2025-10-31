@@ -30,7 +30,7 @@ export const addMedicationHistory = async (
     logger.info(`Medication history added for patient: ${medicationData.patientId}, visit: ${medicationData.visitId}`);
 
     return { success: true, medicationHistory };
-  } catch (error: any) {
+  } catch (error) {
     logger.error('Error in addMedicationHistory service:', error);
     throw error;
   }
@@ -41,15 +41,14 @@ export const addMedicationHistory = async (
  */
 export const getPatientMedicationHistory = async (
   patientId: string
-): Promise<any[]> => {
+): Promise<IMedicationHistory[]> => {
   try {
     const medicationHistory = await MedicationHistory.find({ patientId })
       .sort({ prescribedDate: -1 })
-      .populate('visitId', 'visitDate diagnosis')
-      .lean();
+      .populate('visitId', 'visitDate diagnosis').lean();
 
     return medicationHistory;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in getPatientMedicationHistory service for patient ${patientId}:`, error);
     throw error;
   }
@@ -60,14 +59,14 @@ export const getPatientMedicationHistory = async (
  */
 export const getVisitMedicationHistory = async (
   visitId: string
-): Promise<any | null> => {
+): Promise<IMedicationHistory | null> => {
   try {
     const medicationHistory = await MedicationHistory.findOne({ visitId })
       .populate('patientId', 'name phoneNumber age gender')
       .lean();
 
     return medicationHistory;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in getVisitMedicationHistory service for visit ${visitId}:`, error);
     throw error;
   }
@@ -92,7 +91,7 @@ export const updateMedicationHistory = async (
     }
 
     return medicationHistory;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in updateMedicationHistory service for ${medicationHistoryId}:`, error);
     throw error;
   }
@@ -112,7 +111,7 @@ export const deleteMedicationHistory = async (
     }
 
     return medicationHistory;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in deleteMedicationHistory service for ${medicationHistoryId}:`, error);
     throw error;
   }
@@ -124,7 +123,7 @@ export const deleteMedicationHistory = async (
 export const getRecentPrescriptions = async (
   patientId: string,
   limit: number = 5
-): Promise<any[]> => {
+): Promise<IMedicationHistory[]> => {
   try {
     const recentPrescriptions = await MedicationHistory.find({ patientId })
       .sort({ prescribedDate: -1 })
@@ -133,7 +132,7 @@ export const getRecentPrescriptions = async (
       .lean();
 
     return recentPrescriptions;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in getRecentPrescriptions service for patient ${patientId}:`, error);
     throw error;
   }

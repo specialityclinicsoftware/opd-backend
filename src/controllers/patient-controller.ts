@@ -27,7 +27,7 @@ export const registerPatient = async (req: Request, res: Response): Promise<void
     }
 
     sendCreated(res, { patient }, 'Patient registered successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('registerPatient', error);
     sendError(res, 'Failed to register patient', 500, getErrorMessage(error));
   }
@@ -43,7 +43,7 @@ export const getAllPatients = async (req: Request, res: Response): Promise<void>
     const hospitalId = req.user?.hospitalId;
     const patients = await patientService.getAllPatients(hospitalId);
     sendSuccess(res, { count: patients.length, patients });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('getAllPatients', error);
     sendError(res, 'Failed to fetch patients', 500, getErrorMessage(error));
   }
@@ -62,7 +62,7 @@ export const getPatientById = async (req: Request, res: Response): Promise<void>
     }
 
     sendSuccess(res, { patient });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('getPatientById', error);
     sendError(res, 'Failed to fetch patient', 500, getErrorMessage(error));
   }
@@ -85,7 +85,7 @@ export const searchPatientByPhone = async (req: Request, res: Response): Promise
     }
 
     sendSuccess(res, { patient });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('searchPatientByPhone', error);
     sendError(res, 'Failed to search patient', 500, getErrorMessage(error));
   }
@@ -104,7 +104,7 @@ export const updatePatient = async (req: Request, res: Response): Promise<void> 
     }
 
     sendSuccess(res, { patient }, 'Patient updated successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('updatePatient', error);
     sendError(res, 'Failed to update patient', 500, getErrorMessage(error));
   }
@@ -123,7 +123,7 @@ export const deletePatient = async (req: Request, res: Response): Promise<void> 
     }
 
     sendSuccess(res, {}, 'Patient deleted successfully');
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError('deletePatient', error);
     sendError(res, 'Failed to delete patient', 500, getErrorMessage(error));
   }

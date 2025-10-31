@@ -50,7 +50,7 @@ export const generateRefreshToken = (user: IUser): string => {
 export const verifyToken = (token: string): JWTPayload => {
   try {
     return jwt.verify(token, JWT_SECRET) as JWTPayload;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error('Invalid or expired token');
   }
 };

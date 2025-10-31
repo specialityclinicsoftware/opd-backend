@@ -33,8 +33,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     req.user = decoded;
 
     next();
-  } catch (error: any) {
-    return sendError(res, 'Invalid or expired token', 401);
+  } catch (error: unknown) {
+    return sendError(res, 'Invalid or expired token', 401, error);
   }
 };
 
@@ -80,22 +80,3 @@ export const checkHospitalAccess = (req: Request, res: Response, next: NextFunct
   next();
 };
 
-/**
- * Optional authentication - doesn't fail if no token, but attaches user if present
- */
-export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const decoded = verifyToken(token);
-      req.user = decoded;
-    }
-
-    next();
-  } catch (error: any) {
-    // If token is invalid, just continue without user
-    next();
-  }
-};

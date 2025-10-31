@@ -39,7 +39,7 @@ export const createVisit = async (
     );
 
     return { patient, visit };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error in createVisit service:", error);
     throw error;
   }
@@ -63,7 +63,7 @@ export const updateVisit = async (
     logger.info(`Visit updated: ${visitId}`);
 
     return visit;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in updateVisit service for visit ${visitId}:`, error);
     throw error;
   }
@@ -125,7 +125,7 @@ export const updatePreConsultation = async (
     logger.info(`Pre-consultation updated for visit: ${visitId}`);
 
     return visit;
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error in updatePreConsultation service:", error);
     throw error;
   }
@@ -201,7 +201,7 @@ export const updateConsultation = async (
     logger.info(`Consultation updated for visit: ${visitId}`);
 
     return visit;
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error in updateConsultation service:", error);
     throw error;
   }
@@ -221,7 +221,7 @@ export const getPatientVisits = async (
       .populate("doctorId", "name specialization");
 
     return visits;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(
       `Error in getPatientVisits service for patient ${patientId}:`,
       error
@@ -244,7 +244,7 @@ export const getVisitById = async (
       .populate("doctorId", "name specialization");
 
     return visit;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in getVisitById service for visit ${visitId}:`, error);
     throw error;
   }
@@ -264,7 +264,7 @@ export const getLatestVisit = async (
       .populate("doctorId", "name specialization");
 
     return visit;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(
       `Error in getLatestVisit service for patient ${patientId}:`,
       error
@@ -318,7 +318,7 @@ export const getHospitalVisits = async (
       .populate("doctorId", "name specialization");
 
     return visits;
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error in getHospitalVisits service:", error);
     throw error;
   }
@@ -339,7 +339,7 @@ export const getRecentHospitalVisits = async (
       .populate("doctorId", "name specialization");
 
     return visits;
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error in getRecentHospitalVisits service:", error);
     throw error;
   }
@@ -371,7 +371,7 @@ export const cancelVisit = async (
     );
 
     return visit;
-  } catch (error: any) {
+  } catch (error) {
     logger.error("Error in cancelVisit service:", error);
     throw error;
   }
@@ -391,7 +391,7 @@ export const deleteVisit = async (
     }
 
     return visit;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(`Error in deleteVisit service for visit ${visitId}:`, error);
     throw error;
   }
@@ -422,7 +422,7 @@ export const getPatientHistory = async (
       patient,
       visits,
     };
-  } catch (error: any) {
+  } catch (error) {
     logger.error(
       `Error in getPatientHistory service for patient ${patientId}:`,
       error

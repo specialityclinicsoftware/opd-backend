@@ -44,8 +44,8 @@ export const createHospital = async (hospitalData: Partial<IAccount>, adminData:
       hospital,
       admin: adminUser.toJSON(),
     };
-  } catch (error: any) {
-    logger.error(`Create hospital error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Create hospital error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -62,8 +62,8 @@ export const getHospitalById = async (hospitalId: string) => {
     }
 
     return hospital;
-  } catch (error: any) {
-    logger.error(`Get hospital error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Get hospital error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -82,8 +82,8 @@ export const getAllHospitals = async (filters?: { isActive?: boolean }) => {
     const hospitals = await Account.find(query).sort({ createdAt: -1 });
 
     return hospitals;
-  } catch (error: any) {
-    logger.error(`Get all hospitals error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Get all hospitals error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -106,8 +106,8 @@ export const updateHospital = async (hospitalId: string, updateData: Partial<IAc
     logger.info(`Hospital updated: ${hospital.hospitalName}`);
 
     return hospital;
-  } catch (error: any) {
-    logger.error(`Update hospital error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Update hospital error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -135,8 +135,8 @@ export const deactivateHospital = async (hospitalId: string) => {
     logger.info(`Hospital deactivated: ${hospital.hospitalName}`);
 
     return hospital;
-  } catch (error: any) {
-    logger.error(`Deactivate hospital error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Deactivate hospital error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -158,8 +158,8 @@ export const activateHospital = async (hospitalId: string) => {
     logger.info(`Hospital activated: ${hospital.hospitalName}`);
 
     return hospital;
-  } catch (error: any) {
-    logger.error(`Activate hospital error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Activate hospital error: ${(error as Error).message}`);
     throw error;
   }
 };
@@ -185,8 +185,8 @@ export const getHospitalStats = async (hospitalId: string) => {
       hospital,
       userStats,
     };
-  } catch (error: any) {
-    logger.error(`Get hospital stats error: ${error.message}`);
+  } catch (error: unknown) {
+    logger.error(`Get hospital stats error: ${(error as Error).message}`);
     throw error;
   }
 };

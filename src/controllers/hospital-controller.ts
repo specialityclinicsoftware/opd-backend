@@ -13,8 +13,8 @@ export const createHospital = async (req: Request, res: Response) => {
     const result = await hospitalService.createHospital(hospital, admin);
 
     return sendCreated(res, result, 'Hospital created successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to create hospital', 400);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to create hospital', 400);
   }
 };
 
@@ -29,8 +29,8 @@ export const getHospitalById = async (req: Request, res: Response) => {
     const hospital = await hospitalService.getHospitalById(id);
 
     return sendSuccess(res, hospital, 'Hospital retrieved successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to get hospital', 404);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to get hospital', 404);
   }
 };
 
@@ -50,8 +50,8 @@ export const getAllHospitals = async (req: Request, res: Response) => {
     const hospitals = await hospitalService.getAllHospitals(filters);
 
     return sendSuccess(res, hospitals, 'Hospitals retrieved successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to get hospitals', 500);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to get hospitals', 500);
   }
 };
 
@@ -72,8 +72,8 @@ export const updateHospital = async (req: Request, res: Response) => {
     const hospital = await hospitalService.updateHospital(id, updateData);
 
     return sendSuccess(res, hospital, 'Hospital updated successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to update hospital', 400);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to update hospital', 400);
   }
 };
 
@@ -88,8 +88,8 @@ export const deactivateHospital = async (req: Request, res: Response) => {
     const hospital = await hospitalService.deactivateHospital(id);
 
     return sendSuccess(res, hospital, 'Hospital deactivated successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to deactivate hospital', 400);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to deactivate hospital', 400);
   }
 };
 
@@ -104,8 +104,8 @@ export const activateHospital = async (req: Request, res: Response) => {
     const hospital = await hospitalService.activateHospital(id);
 
     return sendSuccess(res, hospital, 'Hospital activated successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to activate hospital', 400);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to activate hospital', 400);
   }
 };
 
@@ -120,7 +120,7 @@ export const getHospitalStats = async (req: Request, res: Response) => {
     const stats = await hospitalService.getHospitalStats(id);
 
     return sendSuccess(res, stats, 'Hospital statistics retrieved successfully');
-  } catch (error: any) {
-    return sendError(res, error.message || 'Failed to get hospital statistics', 500);
+  } catch (error: unknown) {
+    return sendError(res, (error as Error).message || 'Failed to get hospital statistics', 500);
   }
 };
