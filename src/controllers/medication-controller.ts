@@ -24,7 +24,7 @@ export const addMedicationHistory = async (req: Request, res: Response): Promise
     }
 
     sendCreated(res, { medicationHistory }, 'Medication history added successfully');
-  } catch (error) {
+  } catch (error: any) {
     logError('addMedicationHistory', error);
     sendError(res, 'Failed to add medication history', 500, getErrorMessage(error));
   }
@@ -46,7 +46,7 @@ export const getPatientMedicationHistory = async (
       count: medicationHistory.length,
       medicationHistory,
     });
-  } catch (error) {
+  } catch (error: any) {
     logError('getPatientMedicationHistory', error);
     sendError(res, 'Failed to fetch medication history', 500, getErrorMessage(error));
   }
@@ -65,7 +65,7 @@ export const getVisitMedicationHistory = async (req: Request, res: Response): Pr
     }
 
     sendSuccess(res, { medicationHistory });
-  } catch (error) {
+  } catch (error: any) {
     logError('getVisitMedicationHistory', error);
     sendError(res, 'Failed to fetch medication history', 500, getErrorMessage(error));
   }
@@ -87,7 +87,7 @@ export const updateMedicationHistory = async (req: Request, res: Response): Prom
     }
 
     sendSuccess(res, { medicationHistory }, 'Medication history updated successfully');
-  } catch (error) {
+  } catch (error: any) {
     logError('updateMedicationHistory', error);
     sendError(res, 'Failed to update medication history', 500, getErrorMessage(error));
   }
@@ -106,7 +106,7 @@ export const deleteMedicationHistory = async (req: Request, res: Response): Prom
     }
 
     sendSuccess(res, {}, 'Medication history deleted successfully');
-  } catch (error) {
+  } catch (error: any) {
     logError('deleteMedicationHistory', error);
     sendError(res, 'Failed to delete medication history', 500, getErrorMessage(error));
   }
@@ -128,7 +128,7 @@ export const getRecentPrescriptions = async (req: Request, res: Response): Promi
       count: recentPrescriptions.length,
       recentPrescriptions,
     });
-  } catch (error) {
+  } catch (error: any) {
     logError('getRecentPrescriptions', error);
     sendError(res, 'Failed to fetch recent prescriptions', 500, getErrorMessage(error));
   }

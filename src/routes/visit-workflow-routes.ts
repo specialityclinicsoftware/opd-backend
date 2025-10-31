@@ -8,7 +8,7 @@ const router = Router();
 
 
 
-router.put(
+router.post(
   '/visits/workflow/:id/pre-consultation',
   authenticate,
   authorize(UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
@@ -19,7 +19,7 @@ router.put(
 
 
 
-router.put(
+router.post(
   '/visits/workflow/:id/consultation',
   authenticate,
   authorize(UserRole.DOCTOR, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
@@ -50,6 +50,14 @@ router.get(
   authorize(UserRole.DOCTOR, UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
   checkHospitalAccess,
   visitWorkflowController.getHospitalVisits
+);
+
+router.get(
+  '/hospitals/:hospitalId/visits/workflow/recent',
+  authenticate,
+  authorize(UserRole.DOCTOR, UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
+  checkHospitalAccess,
+  visitWorkflowController.getRecentVisits
 );
 
 export default router;

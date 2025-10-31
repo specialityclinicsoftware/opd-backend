@@ -116,7 +116,7 @@ export const updatePreConsultation = async (
     // Update visit
     Object.assign(visit, filteredUpdate);
 
-    visit.nurseId = nurseId as any;
+    visit.nurseId = nurseId ;
     visit.status = VisitStatus.READY_FOR_DOCTOR;
     visit.preConsultationCompletedAt = new Date();
 
@@ -147,10 +147,9 @@ export const updateConsultation = async (
       throw new Error("Visit not found");
     }
 
-    // Only allow updates if visit is with-doctor or ready-for-doctor
+    // Only allow updates if visit is pending
     if (
-      visit.status !== VisitStatus.WITH_DOCTOR &&
-      visit.status !== VisitStatus.READY_FOR_DOCTOR
+      visit.status !== VisitStatus.PENDING
     ) {
       throw new Error(
         `Cannot update consultation. Visit is in ${visit.status} status`
@@ -194,7 +193,7 @@ export const updateConsultation = async (
     Object.assign(visit, filteredUpdate);
 
     // Set doctor ID and status if not already set
-    visit.doctorId = doctorId as any;
+    visit.doctorId = doctorId ;
     visit.status = VisitStatus.COMPLETED;
     visit.consultationCompletedAt = new Date();
     await visit.save();
@@ -321,6 +320,27 @@ export const getHospitalVisits = async (
     return visits;
   } catch (error: any) {
     logger.error("Error in getHospitalVisits service:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get recent visits for a hospital (last 10 visits)
+ */
+export const getRecentHospitalVisits = async (
+  hospitalId: string
+): Promise<IVisitDocument[]> => {
+  try {
+    const visits = await Visit.find({ hospitalId })
+      .sort({ visitDate: -1 })
+      .limit(10)
+      .populate("patientId", "name phoneNumber age gender")
+      .populate("nurseId", "name")
+      .populate("doctorId", "name specialization");
+
+    return visits;
+  } catch (error: any) {
+    logger.error("Error in getRecentHospitalVisits service:", error);
     throw error;
   }
 };

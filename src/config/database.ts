@@ -17,7 +17,7 @@ export const connectDatabase = async (): Promise<void> => {
       logger.warn('MongoDB disconnected');
     });
 
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Failed to connect to MongoDB:', error);
     process.exit(1);
   }

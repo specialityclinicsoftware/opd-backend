@@ -29,7 +29,7 @@ export const registerPatient = async (
     logger.info(`New patient registered: ${patient._id}`);
 
     return { exists: false, patient };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error in registerPatient service:', error);
     throw error;
   }
@@ -47,7 +47,7 @@ export const getAllPatients = async (hospitalId?: string): Promise<IPatientDocum
 
     const patients = await Patient.find(query).sort({ createdAt: -1 });
     return patients;
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error in getAllPatients service:', error);
     throw error;
   }
@@ -60,7 +60,7 @@ export const getPatientById = async (patientId: string): Promise<IPatientDocumen
   try {
     const patient = await Patient.findById(patientId);
     return patient;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in getPatientById service for patient ${patientId}:`, error);
     throw error;
   }
@@ -81,7 +81,7 @@ export const searchPatientByPhone = async (
 
     const patient = await Patient.findOne(query);
     return patient;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in searchPatientByPhone service for phone ${phoneNumber}:`, error);
     throw error;
   }
@@ -106,7 +106,7 @@ export const updatePatient = async (
     }
 
     return patient;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in updatePatient service for patient ${patientId}:`, error);
     throw error;
   }
@@ -124,7 +124,7 @@ export const deletePatient = async (patientId: string): Promise<IPatientDocument
     }
 
     return patient;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in deletePatient service for patient ${patientId}:`, error);
     throw error;
   }

@@ -128,3 +128,19 @@ export const getHospitalVisits = async (req: Request, res: Response) => {
       return sendError(res, error.message || 'Failed to get hospital visits', 500);
     }
 }
+
+/**
+   * Get recent visits for a hospital (last 10 visits)
+   * GET /api/hospitals/:hospitalId/visits/recent
+   */
+export const getRecentVisits = async (req: Request, res: Response) => {
+    try {
+      const { hospitalId } = req.params;
+
+      const visits = await visitService.getRecentHospitalVisits(hospitalId);
+
+      return sendSuccess(res, visits, 'Recent visits retrieved successfully');
+    } catch (error: any) {
+      return sendError(res, error.message || 'Failed to get recent visits', 500);
+    }
+}

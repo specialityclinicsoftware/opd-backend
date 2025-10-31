@@ -30,7 +30,7 @@ export const addMedicationHistory = async (
     logger.info(`Medication history added for patient: ${medicationData.patientId}, visit: ${medicationData.visitId}`);
 
     return { success: true, medicationHistory };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Error in addMedicationHistory service:', error);
     throw error;
   }
@@ -49,7 +49,7 @@ export const getPatientMedicationHistory = async (
       .lean();
 
     return medicationHistory;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in getPatientMedicationHistory service for patient ${patientId}:`, error);
     throw error;
   }
@@ -67,7 +67,7 @@ export const getVisitMedicationHistory = async (
       .lean();
 
     return medicationHistory;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in getVisitMedicationHistory service for visit ${visitId}:`, error);
     throw error;
   }
@@ -92,7 +92,7 @@ export const updateMedicationHistory = async (
     }
 
     return medicationHistory;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in updateMedicationHistory service for ${medicationHistoryId}:`, error);
     throw error;
   }
@@ -112,7 +112,7 @@ export const deleteMedicationHistory = async (
     }
 
     return medicationHistory;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in deleteMedicationHistory service for ${medicationHistoryId}:`, error);
     throw error;
   }
@@ -133,7 +133,7 @@ export const getRecentPrescriptions = async (
       .lean();
 
     return recentPrescriptions;
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`Error in getRecentPrescriptions service for patient ${patientId}:`, error);
     throw error;
   }
