@@ -1,6 +1,7 @@
 import { User, IUser, UserRole } from '../models/user';
 import { Account } from '../models/account';
 import logger from '../config/logger';
+import { Schema } from 'mongoose';
 
 
 /**
@@ -33,7 +34,7 @@ export const createUser = async (userData: Partial<IUser>, creatorRole: UserRole
 
       // Hospital admin can only create users for their own hospital
       if (creatorRole === UserRole.HOSPITAL_ADMIN) {
-        userData.hospitalId = creatorHospitalId as any;
+        userData.hospitalId = creatorHospitalId as unknown as Schema.Types.ObjectId;
       }
 
       // Create user
@@ -43,8 +44,9 @@ export const createUser = async (userData: Partial<IUser>, creatorRole: UserRole
       logger.info(`User created: ${user.email}, Role: ${user.role}`);
 
       return user.toJSON();
-    } catch (error: any) {
-      logger.error(`Create user error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Create user error: ${message}`);
       throw error;
     }
 }
@@ -54,7 +56,11 @@ export const createUser = async (userData: Partial<IUser>, creatorRole: UserRole
    */
 export const getUsersByHospital = async (hospitalId: string, filters?: { role?: UserRole; isActive?: boolean }) => {
     try {
-      const query: any = { hospitalId };
+      const query: {
+        hospitalId: string;
+        role?: UserRole;
+        isActive?: boolean;
+      } = { hospitalId };
 
       if (filters?.role) {
         query.role = filters.role;
@@ -69,8 +75,9 @@ export const getUsersByHospital = async (hospitalId: string, filters?: { role?: 
         .sort({ createdAt: -1 });
 
       return users;
-    } catch (error: any) {
-      logger.error(`Get users by hospital error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Get users by hospital error: ${message}`);
       throw error;
     }
 }
@@ -88,8 +95,9 @@ export const getUserById = async (userId: string) => {
       }
 
       return user;
-    } catch (error: any) {
-      logger.error(`Get user by ID error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Get user by ID error: ${message}`);
       throw error;
     }
 }
@@ -113,20 +121,22 @@ export const updateUser = async (userId: string, updateData: Partial<IUser>, upd
       }
 
       // Don't allow updating certain fields directly
-      delete (updateData as any)._id;
-      delete (updateData as any).createdAt;
-      delete (updateData as any).updatedAt;
-      delete (updateData as any).lastLogin;
+      const safeUpdateData = { ...updateData };
+      delete (safeUpdateData as Record<string, unknown>)._id;
+      delete (safeUpdateData as Record<string, unknown>).createdAt;
+      delete (safeUpdateData as Record<string, unknown>).updatedAt;
+      delete (safeUpdateData as Record<string, unknown>).lastLogin;
 
       // If password is being updated, it will be hashed by the pre-save hook
-      Object.assign(user, updateData);
+      Object.assign(user, safeUpdateData);
       await user.save();
 
       logger.info(`User updated: ${user.email}`);
 
       return user.toJSON();
-    } catch (error: any) {
-      logger.error(`Update user error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Update user error: ${message}`);
       throw error;
     }
 }
@@ -155,8 +165,9 @@ export const deactivateUser = async (userId: string, deactivatorRole: UserRole, 
       logger.info(`User deactivated: ${user.email}`);
 
       return user.toJSON();
-    } catch (error: any) {
-      logger.error(`Deactivate user error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Deactivate user error: ${message}`);
       throw error;
     }
 }
@@ -185,8 +196,9 @@ export const activateUser = async (userId: string, activatorRole: UserRole, acti
       logger.info(`User activated: ${user.email}`);
 
       return user.toJSON();
-    } catch (error: any) {
-      logger.error(`Activate user error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Activate user error: ${message}`);
       throw error;
     }
 }
@@ -197,8 +209,9 @@ export const activateUser = async (userId: string, activatorRole: UserRole, acti
 export const deleteUser = async (userId: string, deleterRole: UserRole, deleterHospitalId?: string) => {
     try {
       return await deactivateUser(userId, deleterRole, deleterHospitalId);
-    } catch (error: any) {
-      logger.error(`Delete user error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Delete user error: ${message}`);
       throw error;
     }
 }
@@ -212,8 +225,9 @@ export const getDoctorsByHospital = async (hospitalId: string) => {
         role: UserRole.DOCTOR,
         isActive: true
       });
-    } catch (error: any) {
-      logger.error(`Get doctors by hospital error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Get doctors by hospital error: ${message}`);
       throw error;
     }
 }
@@ -227,8 +241,9 @@ export const getNursesByHospital = async (hospitalId: string) => {
         role: UserRole.NURSE,
         isActive: true
       });
-    } catch (error: any) {
-      logger.error(`Get nurses by hospital error: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(`Get nurses by hospital error: ${message}`);
       throw error;
     }
 }

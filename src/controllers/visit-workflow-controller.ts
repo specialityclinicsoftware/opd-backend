@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import * as visitService from '../services/visit-service';
 import { sendSuccess, sendError } from '../utils/response-handler';
-import { UserRole } from '../models/user';
 import { Account } from '../models/account';
+import { VisitStatus } from '../models/visit';
 
 
 /**
@@ -21,8 +21,9 @@ export const updatePreConsultation = async (req: Request, res: Response) => {
       const visit = await visitService.updatePreConsultation(id, req.user.userId, updateData);
 
       return sendSuccess(res, visit, 'Pre-consultation updated successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to update pre-consultation', 400);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update pre-consultation';
+      return sendError(res, message, 400);
     }
 }
 
@@ -52,8 +53,9 @@ export const updateConsultation = async (req: Request, res: Response) => {
       );
 
       return sendSuccess(res, visit, 'Consultation updated successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to update consultation', 400);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update consultation';
+      return sendError(res, message, 400);
     }
 }
 
@@ -69,8 +71,9 @@ export const cancelVisit = async (req: Request, res: Response) => {
       const visit = await visitService.cancelVisit(id, reason);
 
       return sendSuccess(res, visit, 'Visit cancelled successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to cancel visit', 400);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to cancel visit';
+      return sendError(res, message, 400);
     }
 }
 
@@ -89,8 +92,9 @@ export const getVisitById = async (req: Request, res: Response) => {
       }
 
       return sendSuccess(res, visit, 'Visit retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get visit', 500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to get visit';
+      return sendError(res, message, 500);
     }
 }
 
@@ -103,10 +107,16 @@ export const getHospitalVisits = async (req: Request, res: Response) => {
       const { hospitalId } = req.params;
       const { status, startDate, endDate, doctorId, nurseId } = req.query;
 
-      const filters: any = {};
+      const filters: {
+        status?: VisitStatus;
+        startDate?: Date;
+        endDate?: Date;
+        doctorId?: string;
+        nurseId?: string;
+      } = {};
 
       if (status) {
-        filters.status = status;
+        filters.status = status as VisitStatus;
       }
       if (startDate) {
         filters.startDate = new Date(startDate as string);
@@ -115,17 +125,18 @@ export const getHospitalVisits = async (req: Request, res: Response) => {
         filters.endDate = new Date(endDate as string);
       }
       if (doctorId) {
-        filters.doctorId = doctorId;
+        filters.doctorId = doctorId as string;
       }
       if (nurseId) {
-        filters.nurseId = nurseId;
+        filters.nurseId = nurseId as string;
       }
 
       const visits = await visitService.getHospitalVisits(hospitalId, filters);
 
       return sendSuccess(res, visits, 'Hospital visits retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get hospital visits', 500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to get hospital visits';
+      return sendError(res, message, 500);
     }
 }
 
@@ -140,7 +151,8 @@ export const getRecentVisits = async (req: Request, res: Response) => {
       const visits = await visitService.getRecentHospitalVisits(hospitalId);
 
       return sendSuccess(res, visits, 'Recent visits retrieved successfully');
-    } catch (error: any) {
-      return sendError(res, error.message || 'Failed to get recent visits', 500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to get recent visits';
+      return sendError(res, message, 500);
     }
 }

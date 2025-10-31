@@ -98,8 +98,8 @@ UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password as string, salt);
     next();
-  } catch (error: any) {
-    next(error);
+  } catch (error) {
+    next(error as Error);
   }
 });
 
@@ -107,14 +107,14 @@ UserSchema.pre('save', async function (next) {
 UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
-  } catch (error: any) {
+  } catch {
     return false;
   }
 };
 
 // Don't return password in JSON
 UserSchema.set('toJSON', {
-  transform: function (doc, ret) {
+  transform: function (_doc, ret) {
     delete ret.password;
     return ret;
   }
