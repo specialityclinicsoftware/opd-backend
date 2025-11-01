@@ -9,6 +9,7 @@ import authRoutes from './routes/auth-routes';
 import hospitalRoutes from './routes/hospital-routes';
 import userRoutes from './routes/user-routes';
 import visitWorkflowRoutes from './routes/visit-workflow-routes';
+import pharmacyRoutes from './routes/pharmacy-routes';
 import logger from './config/logger';
 import { keepServerAlive } from './utils/keep-alive';
 
@@ -64,6 +65,9 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/visits', visitRoutes);
 app.use('/api/medications', medicationRoutes);
 
+// Pharmacy inventory routes (protected)
+app.use('/api/inventory', pharmacyRoutes);
+
 // Two-stage workflow routes (protected)
 app.use('/api', visitWorkflowRoutes);
 
@@ -112,6 +116,17 @@ app.get('/', (_req: Request, res: Response) => {
         getVisit: 'GET /api/visits/workflow/:id',
       },
       medications: '/api/medications',
+      pharmacy: {
+        addItem: 'POST /api/inventory',
+        getInventory: 'GET /api/inventory/hospital/:hospitalId',
+        getItem: 'GET /api/inventory/:id',
+        updateItem: 'PUT /api/inventory/:id',
+        updateQuantity: 'PATCH /api/inventory/:id/quantity',
+        deleteItem: 'DELETE /api/inventory/:id',
+        lowStock: 'GET /api/inventory/hospital/:hospitalId/low-stock',
+        expiring: 'GET /api/inventory/hospital/:hospitalId/expiring',
+        stats: 'GET /api/inventory/hospital/:hospitalId/stats',
+      },
       health: '/health',
     },
   });
