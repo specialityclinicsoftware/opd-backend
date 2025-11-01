@@ -33,26 +33,36 @@ export interface IBloodInvestigation {
   testDate?: Date;
 }
 
+export interface IMedicationTiming {
+  morning: boolean;
+  afternoon: boolean;
+  evening: boolean;
+  night: boolean;
+}
+
+export interface IMedicationMeal {
+  beforeMeal: boolean;
+  afterMeal: boolean;
+}
+
 export interface IMedication {
   medicineName: string;
-  dosage: string; // e.g., "500mg", "10ml"
-  frequency: string; // e.g., "TDS" (3 times), "BD" (2 times), "OD" (once daily)
-  duration: string; // e.g., "7 days", "2 weeks", "1 month"
-  route?: string; // e.g., "Oral", "IV", "Topical"
-  instructions?: string; // e.g., "Take after meals", "Apply on affected area"
-  timing?: string; // e.g., "Morning-Afternoon-Night", "Before sleep"
+  dosage: string;
+  days: number;
+  timing: IMedicationTiming;
+  meal: IMedicationMeal;
 }
 
 export interface IMedicationHistory {
-  hospitalId?: string;
+  hospitalId: string;
   patientId: string;
   visitId: string;
   prescribedDate: Date;
-  doctorId?: string;
-  consultingDoctor?: string; // Legacy field
+  doctorId: string;
+  consultingDoctor: string;
   diagnosis?: string;
   medications: IMedication[];
-  notes?: string; // Any additional notes about the prescription
+  notes?: string;
 }
 
 export interface IVisit {
@@ -128,4 +138,24 @@ export interface IPharmacyInventory {
   isActive?: boolean;
   addedBy?: string;
   lastUpdatedBy?: string;
+}
+
+export interface IPharmacySalesItem {
+  inventoryId: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  batchNumber?: string;
+}
+
+export interface IPharmacySales {
+  hospitalId: string;
+  patientId: string;
+  visitId: string;
+  prescriptionId: string;
+  items: IPharmacySalesItem[];
+  totalAmount: number;
+  saleDate: Date;
+  soldBy?: string;
 }

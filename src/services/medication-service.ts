@@ -1,8 +1,16 @@
+import mongoose from 'mongoose';
 import MedicationHistory, { IMedicationHistoryDocument } from '../models/medication-history';
 import Patient from '../models/patient';
 import Visit from '../models/visit';
+import PharmacySales from '../models/pharmacy-sales';
 import { IMedicationHistory } from '../types';
 import logger from '../config/logger';
+import {
+  verifyPatientAndVisit,
+  checkInventoryAvailability,
+  prepareSalesAndDeductInventory,
+  handleBillingError,
+} from '../utils/medication-billing-utils';
 
 /**
  * Add medication history for a visit
@@ -135,5 +143,102 @@ export const getRecentPrescriptions = async (
   } catch (error) {
     logger.error(`Error in getRecentPrescriptions service for patient ${patientId}:`, error);
     throw error;
+  }
+};
+
+/**
+ * Add medication history and deduct from inventory (Billing) with transaction
+ * This is a critical function that ensures atomicity across:
+ * 1. Creating prescription record
+ * 2. Deducting inventory
+ * 3. Recording sales
+ */
+export const addMedicationHistoryWithBilling = async (
+  medicationData: IMedicationHistory,
+  soldBy?: string
+): Promise<{
+  success: boolean;
+  medicationHistory?: IMedicationHistoryDocument;
+  salesRecord?: any;
+  message?: string;
+  insufficientStock?: string[];
+  deductedItems?: Array<{ medicineName: string; quantityDeducted: number }>;
+}> => {
+  const session = await mongoose.startSession();
+
+  try {
+    await session.withTransaction(
+      async () => {
+        // Step 1: Verify patient and visit exist
+        await verifyPatientAndVisit(
+          medicationData.patientId,
+          medicationData.visitId,
+          session
+        );
+
+        // Step 2: Validate medications array
+        if (!medicationData.medications || medicationData.medications.length === 0) {
+          throw new Error('NO_MEDICATIONS');
+        }
+
+        // Step 3: Check inventory availability for all medications
+        const { inventoryItems, insufficientStock } = await checkInventoryAvailability(
+          medicationData.hospitalId,
+          medicationData.medications,
+          session
+        );
+
+        if (insufficientStock.length > 0) {
+          const error: any = new Error('INSUFFICIENT_STOCK');
+          error.insufficientStock = insufficientStock;
+          throw error;
+        }
+
+        // Step 4: Create medication history (prescription record)
+        const medicationHistory = new MedicationHistory(medicationData);
+        await medicationHistory.save({ session });
+
+        // Step 5: Prepare sales items and deduct inventory
+        const { salesItems, deductedItems, totalAmount } =
+          await prepareSalesAndDeductInventory(inventoryItems, session);
+
+        // Step 6: Create pharmacy sales record
+        const salesRecord = new PharmacySales({
+          hospitalId: medicationData.hospitalId,
+          patientId: medicationData.patientId,
+          visitId: medicationData.visitId,
+          prescriptionId: medicationHistory._id,
+          items: salesItems,
+          totalAmount,
+          saleDate: new Date(),
+          soldBy,
+        });
+        await salesRecord.save({ session });
+
+        logger.info(
+          `Billing completed - Patient: ${medicationData.patientId}, Visit: ${medicationData.visitId}, Total: ${totalAmount}`
+        );
+
+        // Store results for return
+        (session as any).result = {
+          success: true,
+          medicationHistory,
+          salesRecord,
+          deductedItems,
+        };
+      },
+      {
+        readPreference: 'primary',
+        readConcern: { level: 'snapshot' },
+        writeConcern: { w: 'majority' },
+        maxCommitTimeMS: 30000,
+      }
+    );
+
+    return (session as any).result;
+  } catch (error: any) {
+    return handleBillingError(error);
+  } finally {
+    await session.endSession();
   }
 };

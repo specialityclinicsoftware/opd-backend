@@ -3,14 +3,24 @@ import { IMedicationHistory } from '../types';
 
 export interface IMedicationHistoryDocument extends IMedicationHistory, Document {}
 
+const TimingSchema = new Schema({
+  morning: { type: Boolean, default: false },
+  afternoon: { type: Boolean, default: false },
+  evening: { type: Boolean, default: false },
+  night: { type: Boolean, default: false },
+});
+
+const MealSchema = new Schema({
+  beforeMeal: { type: Boolean, default: false },
+  afterMeal: { type: Boolean, default: false },
+});
+
 const MedicationSchema = new Schema({
   medicineName: { type: String, required: true, trim: true },
   dosage: { type: String, required: true, trim: true },
-  frequency: { type: String, required: true, trim: true },
-  duration: { type: String, required: true, trim: true },
-  route: { type: String, trim: true },
-  instructions: { type: String, trim: true },
-  timing: { type: String, trim: true },
+  days: { type: Number, required: true },
+  timing: TimingSchema,
+  meal: MealSchema,
 });
 
 const MedicationHistorySchema: Schema = new Schema(

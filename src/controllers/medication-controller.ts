@@ -133,3 +133,44 @@ export const getRecentPrescriptions = async (req: Request, res: Response): Promi
     sendError(res, 'Failed to fetch recent prescriptions', 500, getErrorMessage(error));
   }
 };
+
+/**
+ * Add medication history with billing (deduct from inventory)
+ */
+export const addMedicationHistoryWithBilling = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    // Extract soldBy from authenticated user if available
+    const soldBy = req.body.soldBy || (req as any).user?.id;
+
+    const result = await medicationService.addMedicationHistoryWithBilling(req.body, soldBy);
+
+    if (!result.success) {
+      if (result.insufficientStock) {
+        res.status(400).json({
+          success: false,
+          message: result.message || 'Insufficient inventory',
+          insufficientStock: result.insufficientStock,
+        });
+        return;
+      }
+      sendValidationError(res, result.message || 'Failed to add medication history with billing');
+      return;
+    }
+
+    sendCreated(
+      res,
+      {
+        medicationHistory: result.medicationHistory,
+        salesRecord: result.salesRecord,
+        deductedItems: result.deductedItems,
+      },
+      'Medication history added and inventory updated successfully'
+    );
+  } catch (error: unknown) {
+    logError('addMedicationHistoryWithBilling', error);
+    sendError(res, 'Failed to add medication history with billing', 500, getErrorMessage(error));
+  }
+};

@@ -48,32 +48,41 @@ export const validateAddMedicationHistory = [
     .isString().withMessage('Dosage must be a string')
     .trim(),
 
-  body('medications.*.frequency')
-    .exists().withMessage('Frequency is required')
-    .notEmpty().withMessage('Frequency cannot be empty')
-    .isString().withMessage('Frequency must be a string')
-    .trim(),
-
-  body('medications.*.duration')
-    .exists().withMessage('Duration is required')
-    .notEmpty().withMessage('Duration cannot be empty')
-    .isString().withMessage('Duration must be a string')
-    .trim(),
-
-  body('medications.*.route')
-    .optional()
-    .isString().withMessage('Route must be a string')
-    .trim(),
-
-  body('medications.*.instructions')
-    .optional()
-    .isString().withMessage('Instructions must be a string')
-    .trim(),
+  body('medications.*.days')
+    .exists().withMessage('Days is required')
+    .isInt({ min: 1 }).withMessage('Days must be a positive integer'),
 
   body('medications.*.timing')
+    .exists().withMessage('Timing is required')
+    .isObject().withMessage('Timing must be an object'),
+
+  body('medications.*.timing.morning')
     .optional()
-    .isString().withMessage('Timing must be a string')
-    .trim(),
+    .isBoolean().withMessage('Morning must be a boolean'),
+
+  body('medications.*.timing.afternoon')
+    .optional()
+    .isBoolean().withMessage('Afternoon must be a boolean'),
+
+  body('medications.*.timing.evening')
+    .optional()
+    .isBoolean().withMessage('Evening must be a boolean'),
+
+  body('medications.*.timing.night')
+    .optional()
+    .isBoolean().withMessage('Night must be a boolean'),
+
+  body('medications.*.meal')
+    .exists().withMessage('Meal is required')
+    .isObject().withMessage('Meal must be an object'),
+
+  body('medications.*.meal.beforeMeal')
+    .optional()
+    .isBoolean().withMessage('Before meal must be a boolean'),
+
+  body('medications.*.meal.afterMeal')
+    .optional()
+    .isBoolean().withMessage('After meal must be a boolean'),
 
   body('notes')
     .optional()
@@ -124,32 +133,41 @@ export const validateUpdateMedicationHistory = [
     .isString().withMessage('Dosage must be a string')
     .trim(),
 
-  body('medications.*.frequency')
+  body('medications.*.days')
     .optional()
-    .notEmpty().withMessage('Frequency cannot be empty')
-    .isString().withMessage('Frequency must be a string')
-    .trim(),
-
-  body('medications.*.duration')
-    .optional()
-    .notEmpty().withMessage('Duration cannot be empty')
-    .isString().withMessage('Duration must be a string')
-    .trim(),
-
-  body('medications.*.route')
-    .optional()
-    .isString().withMessage('Route must be a string')
-    .trim(),
-
-  body('medications.*.instructions')
-    .optional()
-    .isString().withMessage('Instructions must be a string')
-    .trim(),
+    .isInt({ min: 1 }).withMessage('Days must be a positive integer'),
 
   body('medications.*.timing')
     .optional()
-    .isString().withMessage('Timing must be a string')
-    .trim(),
+    .isObject().withMessage('Timing must be an object'),
+
+  body('medications.*.timing.morning')
+    .optional()
+    .isBoolean().withMessage('Morning must be a boolean'),
+
+  body('medications.*.timing.afternoon')
+    .optional()
+    .isBoolean().withMessage('Afternoon must be a boolean'),
+
+  body('medications.*.timing.evening')
+    .optional()
+    .isBoolean().withMessage('Evening must be a boolean'),
+
+  body('medications.*.timing.night')
+    .optional()
+    .isBoolean().withMessage('Night must be a boolean'),
+
+  body('medications.*.meal')
+    .optional()
+    .isObject().withMessage('Meal must be an object'),
+
+  body('medications.*.meal.beforeMeal')
+    .optional()
+    .isBoolean().withMessage('Before meal must be a boolean'),
+
+  body('medications.*.meal.afterMeal')
+    .optional()
+    .isBoolean().withMessage('After meal must be a boolean'),
 
   body('notes')
     .optional()
