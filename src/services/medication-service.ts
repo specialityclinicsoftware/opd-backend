@@ -1,6 +1,7 @@
 import MedicationHistory, { IMedicationHistoryDocument } from '../models/medication-history';
 import Patient from '../models/patient';
 import Visit from '../models/visit';
+import PharmacyInventory from '../models/pharmacy-inventory';
 import { IMedicationHistory } from '../types';
 import logger from '../config/logger';
 
@@ -134,6 +135,117 @@ export const getRecentPrescriptions = async (
     return recentPrescriptions;
   } catch (error) {
     logger.error(`Error in getRecentPrescriptions service for patient ${patientId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Add medication history and deduct from inventory (Billing)
+ */
+export const addMedicationHistoryWithBilling = async (
+  medicationData: IMedicationHistory
+): Promise<{
+  success: boolean;
+  medicationHistory?: IMedicationHistoryDocument;
+  message?: string;
+  insufficientStock?: string[];
+  deductedItems?: Array<{ medicineName: string; quantityDeducted: number }>;
+}> => {
+  try {
+    // Verify patient exists
+    const patient = await Patient.findById(medicationData.patientId);
+    if (!patient) {
+      return { success: false, message: 'Patient not found' };
+    }
+
+    // Verify visit exists
+    const visit = await Visit.findById(medicationData.visitId);
+    if (!visit) {
+      return { success: false, message: 'Visit not found' };
+    }
+
+    // Check inventory availability for all medications
+    const insufficientStock: string[] = [];
+    const inventoryItems: any[] = [];
+
+    for (const medication of medicationData.medications) {
+      // Search for inventory item by medicine name and hospital
+      const inventoryItem = await PharmacyInventory.findOne({
+        hospitalId: medicationData.hospitalId,
+        itemName: { $regex: new RegExp(medication.medicineName, 'i') }, // Case-insensitive search
+        isActive: true,
+      });
+
+      if (!inventoryItem) {
+        insufficientStock.push(`${medication.medicineName} - Not found in inventory`);
+        continue;
+      }
+
+      // Calculate required quantity (assuming 1 tablet/dose per timing)
+      const timingsPerDay = [
+        medication.timing.morning,
+        medication.timing.afternoon,
+        medication.timing.evening,
+        medication.timing.night,
+      ].filter(Boolean).length;
+
+      const requiredQuantity = timingsPerDay * medication.days;
+
+      if (inventoryItem.quantity < requiredQuantity) {
+        insufficientStock.push(
+          `${medication.medicineName} - Required: ${requiredQuantity}, Available: ${inventoryItem.quantity}`
+        );
+        continue;
+      }
+
+      inventoryItems.push({
+        item: inventoryItem,
+        requiredQuantity,
+        medicineName: medication.medicineName,
+      });
+    }
+
+    // If any medication has insufficient stock, return error
+    if (insufficientStock.length > 0) {
+      return {
+        success: false,
+        message: 'Insufficient inventory for some medications',
+        insufficientStock,
+      };
+    }
+
+    // Deduct inventory for all medications
+    const deductedItems: Array<{ medicineName: string; quantityDeducted: number }> = [];
+
+    for (const { item, requiredQuantity, medicineName } of inventoryItems) {
+      item.quantity -= requiredQuantity;
+      await item.save();
+
+      deductedItems.push({
+        medicineName,
+        quantityDeducted: requiredQuantity,
+      });
+
+      logger.info(
+        `Inventory deducted: ${medicineName}, Quantity: ${requiredQuantity}, Remaining: ${item.quantity}`
+      );
+    }
+
+    // Create medication history
+    const medicationHistory = new MedicationHistory(medicationData);
+    await medicationHistory.save();
+
+    logger.info(
+      `Medication history with billing added for patient: ${medicationData.patientId}, visit: ${medicationData.visitId}`
+    );
+
+    return {
+      success: true,
+      medicationHistory,
+      deductedItems,
+    };
+  } catch (error) {
+    logger.error('Error in addMedicationHistoryWithBilling service:', error);
     throw error;
   }
 };

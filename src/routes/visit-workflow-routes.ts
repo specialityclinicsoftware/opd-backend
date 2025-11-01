@@ -11,7 +11,7 @@ const router = Router();
 router.post(
   '/visits/workflow/:id/pre-consultation',
   authenticate,
-  authorize(UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
+  authorize(UserRole.DOCTOR, UserRole.NURSE, UserRole.HOSPITAL_ADMIN, UserRole.SUPER_ADMIN),
   validateUpdatePreConsultation,
   visitWorkflowController.updatePreConsultation
 );
