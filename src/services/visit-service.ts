@@ -147,9 +147,10 @@ export const updateConsultation = async (
       throw new Error("Visit not found");
     }
 
-    // Only allow updates if visit is pending
+    // Only allow updates if visit is pending or ready-for-doctor
     if (
-      visit.status !== VisitStatus.PENDING
+      visit.status !== VisitStatus.PENDING &&
+      visit.status !== VisitStatus.READY_FOR_DOCTOR
     ) {
       throw new Error(
         `Cannot update consultation. Visit is in ${visit.status} status`
