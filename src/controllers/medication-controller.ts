@@ -142,7 +142,10 @@ export const addMedicationHistoryWithBilling = async (
   res: Response
 ): Promise<void> => {
   try {
-    const result = await medicationService.addMedicationHistoryWithBilling(req.body);
+    // Extract soldBy from authenticated user if available
+    const soldBy = req.body.soldBy || (req as any).user?.id;
+
+    const result = await medicationService.addMedicationHistoryWithBilling(req.body, soldBy);
 
     if (!result.success) {
       if (result.insufficientStock) {
@@ -161,6 +164,7 @@ export const addMedicationHistoryWithBilling = async (
       res,
       {
         medicationHistory: result.medicationHistory,
+        salesRecord: result.salesRecord,
         deductedItems: result.deductedItems,
       },
       'Medication history added and inventory updated successfully'

@@ -1,9 +1,16 @@
+import mongoose from 'mongoose';
 import MedicationHistory, { IMedicationHistoryDocument } from '../models/medication-history';
 import Patient from '../models/patient';
 import Visit from '../models/visit';
-import PharmacyInventory from '../models/pharmacy-inventory';
+import PharmacySales from '../models/pharmacy-sales';
 import { IMedicationHistory } from '../types';
 import logger from '../config/logger';
+import {
+  verifyPatientAndVisit,
+  checkInventoryAvailability,
+  prepareSalesAndDeductInventory,
+  handleBillingError,
+} from '../utils/medication-billing-utils';
 
 /**
  * Add medication history for a visit
@@ -140,112 +147,98 @@ export const getRecentPrescriptions = async (
 };
 
 /**
- * Add medication history and deduct from inventory (Billing)
+ * Add medication history and deduct from inventory (Billing) with transaction
+ * This is a critical function that ensures atomicity across:
+ * 1. Creating prescription record
+ * 2. Deducting inventory
+ * 3. Recording sales
  */
 export const addMedicationHistoryWithBilling = async (
-  medicationData: IMedicationHistory
+  medicationData: IMedicationHistory,
+  soldBy?: string
 ): Promise<{
   success: boolean;
   medicationHistory?: IMedicationHistoryDocument;
+  salesRecord?: any;
   message?: string;
   insufficientStock?: string[];
   deductedItems?: Array<{ medicineName: string; quantityDeducted: number }>;
 }> => {
+  const session = await mongoose.startSession();
+
   try {
-    // Verify patient exists
-    const patient = await Patient.findById(medicationData.patientId);
-    if (!patient) {
-      return { success: false, message: 'Patient not found' };
-    }
-
-    // Verify visit exists
-    const visit = await Visit.findById(medicationData.visitId);
-    if (!visit) {
-      return { success: false, message: 'Visit not found' };
-    }
-
-    // Check inventory availability for all medications
-    const insufficientStock: string[] = [];
-    const inventoryItems: any[] = [];
-
-    for (const medication of medicationData.medications) {
-      // Search for inventory item by medicine name and hospital
-      const inventoryItem = await PharmacyInventory.findOne({
-        hospitalId: medicationData.hospitalId,
-        itemName: { $regex: new RegExp(medication.medicineName, 'i') }, // Case-insensitive search
-        isActive: true,
-      });
-
-      if (!inventoryItem) {
-        insufficientStock.push(`${medication.medicineName} - Not found in inventory`);
-        continue;
-      }
-
-      // Calculate required quantity (assuming 1 tablet/dose per timing)
-      const timingsPerDay = [
-        medication.timing.morning,
-        medication.timing.afternoon,
-        medication.timing.evening,
-        medication.timing.night,
-      ].filter(Boolean).length;
-
-      const requiredQuantity = timingsPerDay * medication.days;
-
-      if (inventoryItem.quantity < requiredQuantity) {
-        insufficientStock.push(
-          `${medication.medicineName} - Required: ${requiredQuantity}, Available: ${inventoryItem.quantity}`
+    await session.withTransaction(
+      async () => {
+        // Step 1: Verify patient and visit exist
+        await verifyPatientAndVisit(
+          medicationData.patientId,
+          medicationData.visitId,
+          session
         );
-        continue;
+
+        // Step 2: Validate medications array
+        if (!medicationData.medications || medicationData.medications.length === 0) {
+          throw new Error('NO_MEDICATIONS');
+        }
+
+        // Step 3: Check inventory availability for all medications
+        const { inventoryItems, insufficientStock } = await checkInventoryAvailability(
+          medicationData.hospitalId,
+          medicationData.medications,
+          session
+        );
+
+        if (insufficientStock.length > 0) {
+          const error: any = new Error('INSUFFICIENT_STOCK');
+          error.insufficientStock = insufficientStock;
+          throw error;
+        }
+
+        // Step 4: Create medication history (prescription record)
+        const medicationHistory = new MedicationHistory(medicationData);
+        await medicationHistory.save({ session });
+
+        // Step 5: Prepare sales items and deduct inventory
+        const { salesItems, deductedItems, totalAmount } =
+          await prepareSalesAndDeductInventory(inventoryItems, session);
+
+        // Step 6: Create pharmacy sales record
+        const salesRecord = new PharmacySales({
+          hospitalId: medicationData.hospitalId,
+          patientId: medicationData.patientId,
+          visitId: medicationData.visitId,
+          prescriptionId: medicationHistory._id,
+          items: salesItems,
+          totalAmount,
+          saleDate: new Date(),
+          soldBy,
+        });
+        await salesRecord.save({ session });
+
+        logger.info(
+          `Billing completed - Patient: ${medicationData.patientId}, Visit: ${medicationData.visitId}, Total: ${totalAmount}`
+        );
+
+        // Store results for return
+        (session as any).result = {
+          success: true,
+          medicationHistory,
+          salesRecord,
+          deductedItems,
+        };
+      },
+      {
+        readPreference: 'primary',
+        readConcern: { level: 'snapshot' },
+        writeConcern: { w: 'majority' },
+        maxCommitTimeMS: 30000,
       }
-
-      inventoryItems.push({
-        item: inventoryItem,
-        requiredQuantity,
-        medicineName: medication.medicineName,
-      });
-    }
-
-    // If any medication has insufficient stock, return error
-    if (insufficientStock.length > 0) {
-      return {
-        success: false,
-        message: 'Insufficient inventory for some medications',
-        insufficientStock,
-      };
-    }
-
-    // Deduct inventory for all medications
-    const deductedItems: Array<{ medicineName: string; quantityDeducted: number }> = [];
-
-    for (const { item, requiredQuantity, medicineName } of inventoryItems) {
-      item.quantity -= requiredQuantity;
-      await item.save();
-
-      deductedItems.push({
-        medicineName,
-        quantityDeducted: requiredQuantity,
-      });
-
-      logger.info(
-        `Inventory deducted: ${medicineName}, Quantity: ${requiredQuantity}, Remaining: ${item.quantity}`
-      );
-    }
-
-    // Create medication history
-    const medicationHistory = new MedicationHistory(medicationData);
-    await medicationHistory.save();
-
-    logger.info(
-      `Medication history with billing added for patient: ${medicationData.patientId}, visit: ${medicationData.visitId}`
     );
 
-    return {
-      success: true,
-      medicationHistory,
-      deductedItems,
-    };
-  } catch (error) {
-    logger.error('Error in addMedicationHistoryWithBilling service:', error);
-    throw error;
+    return (session as any).result;
+  } catch (error: any) {
+    return handleBillingError(error);
+  } finally {
+    await session.endSession();
   }
 };

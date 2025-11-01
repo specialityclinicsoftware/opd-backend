@@ -139,3 +139,23 @@ export interface IPharmacyInventory {
   addedBy?: string;
   lastUpdatedBy?: string;
 }
+
+export interface IPharmacySalesItem {
+  inventoryId: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  batchNumber?: string;
+}
+
+export interface IPharmacySales {
+  hospitalId: string;
+  patientId: string;
+  visitId: string;
+  prescriptionId: string;
+  items: IPharmacySalesItem[];
+  totalAmount: number;
+  saleDate: Date;
+  soldBy?: string;
+}
