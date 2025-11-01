@@ -107,3 +107,25 @@ export interface IPatient {
 }
 
 export type Gender = 'Male' | 'Female' | 'Other';
+
+export interface IPharmacyInventory {
+  hospitalId: string;
+  itemName: string;
+  genericName?: string;
+  category: 'tablet' | 'capsule' | 'syrup' | 'injection' | 'ointment' | 'drops' | 'inhaler' | 'suspension' | 'powder' | 'other';
+  manufacturer?: string;
+  batchNumber?: string;
+  expiryDate?: Date;
+  quantity: number;
+  minStockLevel?: number;
+  unit: string;
+  purchasePrice?: number;
+  sellingPrice?: number;
+  mrp?: number;
+  description?: string;
+  location?: string;
+  notes?: string;
+  isActive?: boolean;
+  addedBy?: string;
+  lastUpdatedBy?: string;
+}
