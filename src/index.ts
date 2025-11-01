@@ -10,7 +10,7 @@ import hospitalRoutes from './routes/hospital-routes';
 import userRoutes from './routes/user-routes';
 import visitWorkflowRoutes from './routes/visit-workflow-routes';
 import logger from './config/logger';
-import { keepServerAlive } from './keep-alive';
+import { keepServerAlive } from './utils/keep-alive';
 
 // Load environment variables
 dotenv.config();
